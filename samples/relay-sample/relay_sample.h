@@ -1,56 +1,31 @@
-#include <PipeLine.h>
-#include <ColorConversionXForm.h>
+#include "ImageViewerModule.h"
 #include "KeyboardListener.h"
 #include "Mp4VideoMetadata.h"
+#include <ColorConversionXForm.h>
+#include <PipeLine.h>
+
 #include "ImageViewerModule.h"
-
-class ImageViewerModuleExtended : public ImageViewerModule {
-public:
-    ImageViewerModuleExtended(ImageViewerModuleProps _props) : ImageViewerModule(_props) {}
-protected:
-    bool validateInputPins() override
-    {
-        framemetadata_sp metadata = getFirstInputMetadata();
-        FrameMetadata::FrameType frameType = metadata->getFrameType();
-        FrameMetadata::MemType inputMemType = metadata->getMemType();
-
-#if defined(__arm__) || defined(__aarch64__)
-        if (inputMemType != FrameMetadata::MemType::DMABUF) {
-            LOG_ERROR << "<" << getId()
-                << ">::validateInputPins input memType is expected to be DMABUF. Actual<"
-                << inputMemType << ">";
-            return false;
-        }
-        if (frameType != FrameMetadata::RAW_IMAGE &&
-            frameType != FrameMetadata::RAW_IMAGE_PLANAR) {
-            LOG_ERROR << "<" << getId()
-                << ">::validateInputPins input frameType is expected to be "
-                "RAW_IMAGE or RAW_IMAGE_PLANAR. Actual<"
-                << frameType << ">";
-            return false;
-        }
-#else
-        if (frameType != FrameMetadata::RAW_IMAGE) {
-            LOG_ERROR << "<" << getId()
-                << ">::validateInputPins input frameType is expected to be RAW_IMAGE. Actual<"
-                << frameType << ">";
-            return false;
-        }
-#endif
-        return true;
-    }
-};
+#include "RTSPClientSrc.h"
+#include <H264Decoder.h>
+#include <ColorConversionXForm.h>
+#include <Mp4ReaderSource.h>
 
 class RelayPipeline {
 public:
-	boost::shared_ptr<ColorConversion> rtspColorConversion;
-	boost::shared_ptr<ColorConversion> mp4ColorConversion;
-	boost::shared_ptr<ImageViewerModuleExtended> sink;
-    RelayPipeline();
-    bool setupPipeline();
-    bool startPipeline();
-    bool stopPipeline();
+  RelayPipeline();
+
+  bool setupPipeline();
+  bool startPipeline();
+  bool stopPipeline();
+  void addRelayToRtsp(bool open);
+  void addRelayToMp4(bool open);
+  bool testPipeline();
 
 private:
-    PipeLine pipeline;
+  PipeLine pipeline;
+  boost::shared_ptr<RTSPClientSrc> rtspSource;
+  boost::shared_ptr<Mp4ReaderSource> mp4ReaderSource;
+  boost::shared_ptr<H264Decoder> h264Decoder;
+  boost::shared_ptr<ColorConversion> colorConversion;
+  boost::shared_ptr<ImageViewerModule> imageViewer;
 };
