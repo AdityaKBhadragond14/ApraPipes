@@ -163,7 +163,11 @@ SET(CORE_FILES
 	src/MotionVectorExtractor.cpp
 	src/OverlayModule.cpp
 	src/OrderedCacheOfFiles.cpp
+<<<<<<< vb/relay-sample
+	.././samples/relay-sample/relay_sample.cpp
+=======
 	.././samples/timelapse-sample/timelapse_summary.h
+>>>>>>> ab/timelapse_sample
 )
 
 SET(CORE_FILES_H
@@ -225,7 +229,11 @@ SET(CORE_FILES_H
 	include/OverlayModule.h
 	include/OrderedCacheOfFiles.h
 	include/TestSignalGeneratorSrc.h
+<<<<<<< vb/relay-sample
+	.././samples/relay-sample/relay_sample.h
+=======
 	.././samples/timelapse-sample/timelapse_summary.cpp
+>>>>>>> ab/timelapse_sample
 )
 
 IF(ENABLE_WINDOWS)
@@ -458,7 +466,11 @@ ${LIBMP4_INC_DIR}
 ${BARESIP_INC_DIR}
 ${LIBRE_INC_DIR}
 ${NVCODEC_INCLUDE_DIR}
+<<<<<<< vb/relay-sample
+./../samples/relay-sample
+=======
 ./../samples/timelapse-sample
+>>>>>>> ab/timelapse_sample
 )
 
 
@@ -570,8 +582,16 @@ SET(UT_FILES
 )
 
 SET(SAMPLE_UT_FILES
+<<<<<<< vb/relay-sample
+	.././samples/relay-sample/relay_sample_test.cpp
+	test/test_utils.h
+	test/test_utils.cpp
+)
+
+=======
 .././samples/timelapse-sample/timelapse_summary_test.cpp
 )
+>>>>>>> ab/timelapse_sample
 IF(ENABLE_LINUX)
 	list(APPEND UT_FILES
 	test/virtualcamerasink_tests.cpp
@@ -581,6 +601,7 @@ ENDIF(ENABLE_LINUX)
 
 
 add_executable(aprapipesut ${UT_FILES})
+add_executable(aprapipessampleut ${SAMPLE_UT_FILES})
 
 add_executable(aprapipessampleut ${SAMPLE_UT_FILES})
 
@@ -642,6 +663,29 @@ target_link_libraries(aprapipesut
   whisper::whisper
   )
 
+  target_link_libraries(aprapipessampleut      
+  aprapipes  
+  ${JPEG_LIBRARIES}
+  ${LIBMP4_LIB}
+  ${OPENH264_LIB}
+  ${Boost_LIBRARIES}
+  ${FFMPEG_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  ${JETSON_LIBS}
+  ${NVCUDAToolkit_LIBS}
+  ${NVCODEC_LIB}
+  ${NVJPEGLIB_L4T}
+  ${CURSES_LIBRARIES}
+  ZXing::Core
+  ZXing::ZXing	
+  BZip2::BZip2
+  ZLIB::ZLIB
+  liblzma::liblzma
+  bigint::bigint
+  sfml-audio
+  whisper::whisper
+  )
+
 IF(ENABLE_WINDOWS)
 	file(COPY ${RUNTIME_DLLS} DESTINATION Debug/)
 	file(COPY ${RUNTIME_DLLS} DESTINATION Release/)
@@ -649,5 +693,6 @@ IF(ENABLE_WINDOWS)
 		file(COPY ${RUNTIME_DLLS} DESTINATION RelWithDebInfo/)
 	ENDIF(GHA)
 ENDIF(ENABLE_WINDOWS)
+
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../samples ${CMAKE_CURRENT_BINARY_DIR}/samples)
