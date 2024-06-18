@@ -2,11 +2,10 @@ cmake_minimum_required(VERSION 3.22)
 set(TARGET relaysample)
 SET(CORE_FILES
 	relay_sample.cpp
-  ../../base/test/test_utils.cpp
+  PipelineMain.cpp
 )
 SET(CORE_FILES_H
 	relay_sample.h
-  ../../base/test/test_utils.h
 )
 SET(SOURCE
   ${CORE_FILES}
@@ -40,12 +39,4 @@ target_link_libraries(
   ${NVCODEC_LIB}
   ${NVJPEGLIB_L4T}
   ${CURSES_LIBRARIES}
-  ZXing::Core
-  ZXing::ZXing	
-  BZip2::BZip2
-  ZLIB::ZLIB
-  liblzma::liblzma
-  bigint::bigint
-  sfml-audio
-  whisper::whisper
 )

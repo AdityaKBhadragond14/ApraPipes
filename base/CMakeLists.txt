@@ -163,7 +163,6 @@ SET(CORE_FILES
 	src/MotionVectorExtractor.cpp
 	src/OverlayModule.cpp
 	src/OrderedCacheOfFiles.cpp
-	.././samples/relay-sample/relay_sample.cpp
 )
 
 SET(CORE_FILES_H
@@ -225,7 +224,6 @@ SET(CORE_FILES_H
 	include/OverlayModule.h
 	include/OrderedCacheOfFiles.h
 	include/TestSignalGeneratorSrc.h
-	.././samples/relay-sample/relay_sample.h
 )
 
 IF(ENABLE_WINDOWS)
@@ -458,7 +456,6 @@ ${LIBMP4_INC_DIR}
 ${BARESIP_INC_DIR}
 ${LIBRE_INC_DIR}
 ${NVCODEC_INCLUDE_DIR}
-./../samples/relay-sample
 )
 
 
@@ -570,9 +567,20 @@ SET(UT_FILES
 )
 
 SET(SAMPLE_UT_FILES
-	.././samples/relay-sample/relay_sample_test.cpp
+	../samples/relay-sample/relay_sample_test.cpp
+	test/utmain.cpp
 	test/test_utils.h
 	test/test_utils.cpp
+)
+
+SET(SAMPLE_CORE_FILES
+	../samples/relay-sample/relay_sample.cpp
+	../samples/relay-sample/relay_sample.h
+)
+
+SET(SAMPLE_SOURCE
+	${SAMPLE_CORE_FILES}
+	${SAMPLE_UT_FILES}
 )
 
 IF(ENABLE_LINUX)
@@ -584,7 +592,7 @@ ENDIF(ENABLE_LINUX)
 
 
 add_executable(aprapipesut ${UT_FILES})
-add_executable(aprapipessampleut ${SAMPLE_UT_FILES})
+add_executable(aprapipessampleut ${SAMPLE_SOURCE})
 
 IF(ENABLE_ARM64)
 	target_include_directories ( aprapipesut PRIVATE ${JETSON_MULTIMEDIA_LIB_INCLUDE} ${FFMPEG_ROOT} ${JPEG_INCLUDE_DIR})
@@ -621,6 +629,18 @@ target_link_libraries(aprapipesut
   whisper::whisper
   )
 
+  target_include_directories ( aprapipessampleut PRIVATE 
+  ${JETSON_MULTIMEDIA_LIB_INCLUDE}
+  ${FFMPEG_INCLUDE_DIRS} 
+  ${OpenCV_INCLUDE_DIRS} 
+  ${Boost_INCLUDE_DIRS}
+  ${LIBMP4_INC_DIR}
+  ${BARESIP_INC_DIR}
+  ${LIBRE_INC_DIR}
+  ${NVCODEC_INCLUDE_DIR}
+  test
+  )
+
   target_link_libraries(aprapipessampleut      
   aprapipes  
   ${JPEG_LIBRARIES}
@@ -634,14 +654,6 @@ target_link_libraries(aprapipesut
   ${NVCODEC_LIB}
   ${NVJPEGLIB_L4T}
   ${CURSES_LIBRARIES}
-  ZXing::Core
-  ZXing::ZXing	
-  BZip2::BZip2
-  ZLIB::ZLIB
-  liblzma::liblzma
-  bigint::bigint
-  sfml-audio
-  whisper::whisper
   )
 
 IF(ENABLE_WINDOWS)

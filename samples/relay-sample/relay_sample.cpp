@@ -1,5 +1,4 @@
 #include "relay_sample.h"
-#include "../../base/test/test_utils.h"
 #include "ExternalSinkModule.h"
 #include "FrameMetadata.h"
 #include "H264Metadata.h"
@@ -25,61 +24,55 @@ void RelayPipeline::addRelayToMp4(bool open) {
   mp4ReaderSource->relay(h264Decoder, open);
 }
 
-bool RelayPipeline::testPipeline() {
+//bool RelayPipeline::testPipeline() {
+//
+//  auto sink = boost::shared_ptr<ExternalSinkModule>(new ExternalSinkModule());
+//  colorConversion->setNext(sink);
+//
+//  BOOST_TEST(rtspSource->init());
+//  BOOST_TEST(mp4ReaderSource->init());
+//  BOOST_TEST(h264Decoder->init());
+//  BOOST_TEST(colorConversion->init());
+//  BOOST_TEST(sink->init());
+//
+//  for (int i = 0; i <= 10; i++) {
+//    mp4ReaderSource->step();
+//    h264Decoder->step();
+//  }
+//  colorConversion->step();
+//
+//  auto frames = sink->pop();
+//  frame_sp outputFrame = frames.cbegin()->second;
+//  Test_Utils::saveOrCompare(
+//      "../.././data/frame_from_mp4.raw",
+//      const_cast<const uint8_t *>(static_cast<uint8_t *>(outputFrame->data())),
+//      outputFrame->size(), 0);
+//
+//  for (int i = 0; i <= 10; i++) {
+//    rtspSource->step();
+//    h264Decoder->step();
+//  }
+//  colorConversion->step();
+//
+//  frames = sink->pop();
+//  outputFrame = frames.cbegin()->second;
+//  Test_Utils::saveOrCompare(
+//      "../.././data/frame_from_rtsp.raw",
+//      const_cast<const uint8_t *>(static_cast<uint8_t *>(outputFrame->data())),
+//      outputFrame->size(), 0);
+//
+//  return true;
+//}
 
-  auto sink = boost::shared_ptr<ExternalSinkModule>(new ExternalSinkModule());
-  colorConversion->setNext(sink);
-
-  BOOST_TEST(rtspSource->init());
-  BOOST_TEST(mp4ReaderSource->init());
-  BOOST_TEST(h264Decoder->init());
-  BOOST_TEST(colorConversion->init());
-  BOOST_TEST(sink->init());
-
-  for (int i = 0; i <= 10; i++) {
-    mp4ReaderSource->step();
-    h264Decoder->step();
-  }
-  colorConversion->step();
-
-  auto frames = sink->pop();
-  frame_sp outputFrame = frames.cbegin()->second;
-  Test_Utils::saveOrCompare(
-      "../.././data/frame_from_mp4.raw",
-      const_cast<const uint8_t *>(static_cast<uint8_t *>(outputFrame->data())),
-      outputFrame->size(), 0);
-
-  for (int i = 0; i <= 10; i++) {
-    rtspSource->step();
-    h264Decoder->step();
-  }
-  colorConversion->step();
-
-  frames = sink->pop();
-  outputFrame = frames.cbegin()->second;
-  Test_Utils::saveOrCompare(
-      "../.././data/frame_from_rtsp.raw",
-      const_cast<const uint8_t *>(static_cast<uint8_t *>(outputFrame->data())),
-      outputFrame->size(), 0);
-
-  return true;
-}
-
-bool RelayPipeline::setupPipeline() {
+bool RelayPipeline::setupPipeline(const std::string &rtspUrl, const std::string &mp4VideoPath) {
   // RTSP
-  LOG_INFO << "Please provide the RTSP camera URL.." << endl;
-   string rstpUrl;
-  getline(cin, rstpUrl);
-   auto url = std::string(rstpUrl);
+  auto url = std::string(rtspUrl);
   rtspSource = boost::shared_ptr<RTSPClientSrc>(
       new RTSPClientSrc(RTSPClientSrcProps(url, "", "")));
   auto rtspMetaData = framemetadata_sp(new H264Metadata(1280, 720));
   rtspSource->addOutputPin(rtspMetaData);
 
   // MP4
-  string mp4VideoPath;
-  LOG_INFO << "Please provide the recoded Mp4 video path.." << endl;
-  getline(cin, mp4VideoPath);
   bool parseFS = false;
   auto h264ImageMetadata = framemetadata_sp(new H264Metadata(1280, 720));
   auto frameType = FrameMetadata::FrameType::H264_DATA;
@@ -125,39 +118,3 @@ bool RelayPipeline::stopPipeline() {
   return true;
 }
 
-int main() {
-  LoggerProps loggerProps;
-  loggerProps.logLevel = boost::log::trivial::severity_level::info;
-  Logger::setLogLevel(boost::log::trivial::severity_level::info);
-  Logger::initLogger(loggerProps);
-
-  RelayPipeline pipelineInstance;
-
-  if (!pipelineInstance.setupPipeline()) {
-    std::cerr << "Failed to setup pipeline." << std::endl;
-    return 1;
-  }
-
-  if (!pipelineInstance.startPipeline()) {
-      std::cerr << "Failed to start pipeline." << std::endl;
-      return 1;
-  }
-
-  while (true) {
-    int k = getchar();
-    if (k == 114) {
-      pipelineInstance.addRelayToRtsp(false);
-      pipelineInstance.addRelayToMp4(true);
-    }
-    if (k == 108) {
-      pipelineInstance.addRelayToMp4(false);
-      pipelineInstance.addRelayToRtsp(true);
-    }
-    if (k == 115) {
-      pipelineInstance.stopPipeline();
-      break;
-    }
-  }
-
-  return 0;
-}

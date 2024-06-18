@@ -14,18 +14,18 @@ class RelayPipeline {
 public:
   RelayPipeline();
 
-  bool setupPipeline();
-  bool startPipeline();
-  bool stopPipeline();
-  void addRelayToRtsp(bool open);
-  void addRelayToMp4(bool open);
-  bool testPipeline();
-
-private:
-  PipeLine pipeline;
   boost::shared_ptr<RTSPClientSrc> rtspSource;
   boost::shared_ptr<Mp4ReaderSource> mp4ReaderSource;
   boost::shared_ptr<H264Decoder> h264Decoder;
   boost::shared_ptr<ColorConversion> colorConversion;
   boost::shared_ptr<ImageViewerModule> imageViewer;
+
+  bool setupPipeline(const std::string &rtspUrl, const std::string &mp4VideoPath);
+  bool startPipeline();
+  bool stopPipeline();
+  void addRelayToRtsp(bool open);
+  void addRelayToMp4(bool open);
+
+private:
+  PipeLine pipeline;
 };
